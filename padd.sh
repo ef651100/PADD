@@ -640,7 +640,7 @@ PrintLogo() {
     CleanPrintf "${padd_logo_retro_1}\e[0K\\n"
     CleanPrintf "${padd_logo_retro_2}   Pi-hole® ${core_version_heatmap}${core_version}${reset_text}, Web ${web_version_heatmap}${web_version}${reset_text}, FTL ${ftl_version_heatmap}${ftl_version}${reset_text}, PADD ${padd_version_heatmap}${padd_version}${reset_text}, Unbound ${green_text}v${unbound}${reset_text}\e[0K\\n"
     CleanPrintf "${padd_logo_retro_3}   ${pihole_check_box} Core  ${ftl_check_box} FTL   ${mega_status} ${check_box_info} "$(date +%d/%m/%y)", "$(date +%R)" ${reset_text}\e[0K\\n"
-    
+    CleanEcho ""
   # normal or not defined
   else
     CleanPrintf "${padd_logo_retro_1}\e[0K\\n"
@@ -712,13 +712,13 @@ PrintNetworkInformation() {
     CleanPrintf "%s\e[0K\\n" "${dhcp_info}"
   else
     CleanEcho "${bold_text}NETWORK ============================================================================================${reset_text}"
-    CleanPrintf " %-10s%-19s %-10s%-14s %-4s%-9s %-4s%-9s\e[0K\\n" "Hostname:" "${full_hostname}" "I/F:" "${iface_name}" "TX:" "${tx_bytes}" "RX:" "${rx_bytes}"
+    CleanPrintf " %-10s%-19s %-10s%-14s %-4s%-9s %-4s%-9s\e[0K\\n" "Hostname:" "${full_hostname}" "I/face:" "${iface_name}" "TX:" "${tx_bytes}" "RX:" "${rx_bytes}"
     CleanPrintf " %-10s%-19s %-10s%-29s\e[0K\\n" "IPv4:" "${pi_ip4_addr}" "IPv6:" "${pi_ip6_addr}"
     #CleanEcho "DNS ==========================================================================="
     #CleanPrintf " %-10s%-39s\e[0K\\n" "Servers:" "${dns_information}"
     #CleanPrintf " %-10s${dnssec_heatmap}%-19s${reset_text} %-20s${conditional_forwarding_heatmap}%-9s${reset_text}\e[0K\\n" "DNSSEC:" "${dnssec_status}" "Conditional Fwding:" "${conditional_forwarding_status}"
     CleanEcho "UNBOUND ============================================================================================"
-    CleanPrintf " %-10s%-19s %-10s%-9s %-10s%-19s\e[0K\\n" "Total: " "$(sudo unbound-control stats_noreset | awk -F '=' '/total.num.queries=/ {printf $NF}') queries" " Reply:" " $(sudo unbound-control stats_noreset | awk -F '=' '/total.recursion.time.avg/ {printf "%.3f\n", $NF}') s" "Cached:" "$(sudo unbound-control stats_noreset | awk -F '=' '$1 == "total.num.queries" {queries=$NF} $1 == "total.num.cachehits" {hits=$NF}END{printf "%d, %.2f\n", hits, hits/queries*100"%"}')% "
+    CleanPrintf " %-10s%-19s %-10s%-14s %-10s%-19s\e[0K\\n" "Total: " "$(sudo unbound-control stats_noreset | awk -F '=' '/total.num.queries=/ {printf $NF}') queries" "Reply:" "$(sudo unbound-control stats_noreset | awk -F '=' '/total.recursion.time.avg/ {printf "%.3f\n", $NF}')s" "Cached:" "$(sudo unbound-control stats_noreset | awk -F '=' '$1 == "total.num.queries" {queries=$NF} $1 == "total.num.cachehits" {hits=$NF}END{printf "%d, %.2f\n", hits, hits/queries*100"%"}')% "
 
     CleanEcho "DHCP ==============================================================================================="
     CleanPrintf " %-10s${dhcp_heatmap}%-19s${reset_text} %-10s${dhcp_ipv6_heatmap}%-9s${reset_text}\e[0K\\n" "DHCP:" "${dhcp_status}" "IPv6 Spt:" "${dhcp_ipv6_status}"
@@ -804,7 +804,7 @@ PrintPiholeStats() {
     CleanPrintf " %-10s%-39s\e[0K\\n" "Top Dmn:" "${top_domain}"
     CleanPrintf " %-10s%-39s\e[0K\\n" "Top Clnt:" "${top_client}"
     CleanEcho "FTL ==========================================================================="
-    CleanPrintf " %-10s%-9s %-10s%-9s %-10s%-9s\e[0K\\n" "PID:" "${ftlPID}" "CPU Use:" "${ftl_cpu}%" "Mem. Use:" "${ftl_mem_percentage}%"
+    CleanPrintf " %-10s%-14s %-10s%-9s %-10s%-9s\e[0K\\n" "PID:" "${ftlPID}" "CPU Use:" "${ftl_cpu}%" "Mem. Use:" "${ftl_mem_percentage}%"
     CleanPrintf " %-10s%-69s\e[0K\\n" "DNSCache:" "${cache_inserts} insertions, ${cache_deletes} deletions, ${cache_size} total entries"
   else
     CleanEcho "${bold_text}STATS ==============================================================================================${reset_text}"
