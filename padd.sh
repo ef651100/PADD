@@ -804,7 +804,7 @@ PrintPiholeStats() {
     CleanPrintf " %-10s%-39s\e[0K\\n" "Top Dmn:" "${top_domain}"
     CleanPrintf " %-10s%-39s\e[0K\\n" "Top Clnt:" "${top_client}"
     CleanEcho "FTL ==========================================================================="
-    CleanPrintf " %-10s%-14s %-10s%-9s %-10s%-9s\e[0K\\n" "PID:" "${ftlPID}" "CPU Use:" "${ftl_cpu}%" "Mem. Use:" "${ftl_mem_percentage}%"
+    CleanPrintf " %-10s%-9s %-10s%-9s %-10s%-9s\e[0K\\n" "PID:" "${ftlPID}" "CPU Use:" "${ftl_cpu}%" "Mem. Use:" "${ftl_mem_percentage}%"
     CleanPrintf " %-10s%-69s\e[0K\\n" "DNSCache:" "${cache_inserts} insertions, ${cache_deletes} deletions, ${cache_size} total entries"
   else
     CleanEcho "${bold_text}STATS ==============================================================================================${reset_text}"
@@ -815,7 +815,7 @@ PrintPiholeStats() {
     CleanPrintf " %-10s%-39s\e[0K\\n" "Top Dmn:" "${top_domain}"
     CleanPrintf " %-10s%-39s\e[0K\\n" "Top Clnt:" "${top_client}"
     CleanEcho "FTL ================================================================================================"
-    CleanPrintf " %-10s%-9s %-5s%-9s %-6s%-9s %-10s%-9s\e[0K\\n" "PID:" "${ftlPID}" "CPU:" "${ftl_cpu}%" "RAM:" "${ftl_mem_percentage}%" "DB Size:" "$(du -h /etc/pihole/pihole-FTL.db | awk '{ print $1}')"
+    CleanPrintf " %-10s%-19s %-10s%-9s %-10s%-9s %-10s%-9s\e[0K\\n" "PID:" "${ftlPID}" "CPU Use:" "${ftl_cpu}%" "Mem. Use:" "${ftl_mem_percentage}%" "DB Size:" "$(du -h /etc/pihole/pihole-FTL.db | awk '{ print $1}')"
     CleanPrintf " %-10s%-69s\e[0K\\n" "DNSCache:" "${cache_inserts} insertions, ${cache_deletes} deletions, ${cache_size} total entries"    
   fi
 }
