@@ -30,6 +30,11 @@ LastCheckSystemInformation=$(date +%s)
 # CORES
 core_count=$(nproc --all 2> /dev/null)
 
+# For Hyper size stats
+unbound=$(sudo unbound-control status | awk 'NR==1{print $NF}')
+cpu_freq=$(lscpu | awk '/CPU max MHz/{if($NF+0>1000)printf "%0.2f GHz\n",$NF/1000; else printf "%.3f MHz\n",$NF}')
+ram_total=$(awk '/MemTotal/ {printf( "%.f\n", $2 / 1024 / 1024 )}' /proc/meminfo)
+
 # COLORS
 CSI="$(printf '\033')["  # Control Sequence Introducer
 red_text="${CSI}91m"     # Red
@@ -620,6 +625,10 @@ PrintLogo() {
     printf "%s${clear_line}\n" "${padd_logo_1}"
     printf "%s${clear_line}\n" "${padd_logo_2}Pi-hole® ${core_version_heatmap}${core_version}${reset_text}, Web ${web_version_heatmap}${web_version}${reset_text}, FTL ${ftl_version_heatmap}${ftl_version}${reset_text}"
     printf "%s${clear_line}\n${clear_line}\n" "${padd_logo_3}PADD ${padd_version_heatmap}${padd_version}${reset_text}   ${full_status}${reset_text}"
+  elif [ "$1" = "hyper" ]; then
+    printf "%s${clear_line}\n" "${padd_logo_retro_1}"
+    printf "%s${clear_line}\n" "${padd_logo_retro_2}   Pi-hole® ${core_version_heatmap}${core_version}${reset_text}, Web ${web_version_heatmap}${web_version}${reset_text}, FTL ${ftl_version_heatmap}${ftl_version}${reset_text}, PADD ${padd_version_heatmap}${padd_version}${reset_text}, Unbound ${green_text}v${unbound}${reset_text}"
+    printf "%s${clear_line}\n${clear_line}\n" "${padd_logo_retro_3}   ${pihole_check_box} Core  ${ftl_check_box} FTL   ${mega_status} ${check_box_info} "$(date +%d/%m/%y)", "$(date +%R)" ${reset_text}"
   # normal or not defined
   else
     printf "%s${clear_line}\n" "${padd_logo_retro_1}"
@@ -762,8 +771,8 @@ PrintDashboard() {
         printf " %-10s%-39s${clear_line}\n" "Uptime:" "${system_uptime}"
         printf " %-10s${temp_heatmap}%-21s${reset_text}%-10s${cpu_load_1_heatmap}%-4s${reset_text}, ${cpu_load_5_heatmap}%-4s${reset_text}, ${cpu_load_15_heatmap}%-4s${reset_text}${clear_line}\n" "CPU Temp:" "${temperature}" "CPU Load:" "${cpu_load_1}" "${cpu_load_5}" "${cpu_load_15}"
         printf " %-10s[${memory_heatmap}%-10s${reset_text}] %-6s %-10s[${cpu_load_1_heatmap}%-10s${reset_text}] %-5s${clear_line}" "Memory:" "${memory_bar}" "${memory_percent}%" "CPU Load:" "${cpu_bar}" "${cpu_percent}%"
-    else # ${padd_size} = mega
-         # mega is a screen with at least 80 columns and 26 lines
+    elif [ "$1" = "mega" ]; then
+        # mega is a screen with at least 80 columns and 26 lines
         printf "%s${clear_line}\n" "${padd_logo_retro_1}"
         printf "%s${clear_line}\n" "${padd_logo_retro_2}   Pi-hole® ${core_version_heatmap}${core_version}${reset_text}, Web ${web_version_heatmap}${web_version}${reset_text}, FTL ${ftl_version_heatmap}${ftl_version}${reset_text}, PADD ${padd_version_heatmap}${padd_version}${reset_text}"
         printf "%s${clear_line}\n" "${padd_logo_retro_3}   ${pihole_check_box} Core  ${ftl_check_box} FTL   ${mega_status}${reset_text}"
@@ -790,6 +799,42 @@ PrintDashboard() {
         printf " %-10s%-39s${clear_line}\n" "Device:" "${sys_model}"
         printf " %-10s%-39s %-10s[${memory_heatmap}%-10s${reset_text}] %-6s${clear_line}\n" "Uptime:" "${system_uptime}" "Memory:" "${memory_bar}" "${memory_percent}%"
         printf " %-10s${temp_heatmap}%-10s${reset_text} %-10s${cpu_load_1_heatmap}%-4s${reset_text}, ${cpu_load_5_heatmap}%-4s${reset_text}, ${cpu_load_15_heatmap}%-7s${reset_text} %-10s[${memory_heatmap}%-10s${reset_text}] %-6s${clear_line}" "CPU Temp:" "${temperature}" "CPU Load:" "${cpu_load_1}" "${cpu_load_5}" "${cpu_load_15}" "CPU Load:" "${cpu_bar}" "${cpu_percent}%"
+
+    else # ${padd_size} = hyper
+        # hyperpixel
+        printf "%s${clear_line}\n" "${padd_logo_retro_1}"
+        printf "%s${clear_line}\n" "${padd_logo_retro_2}   Pi-hole® ${core_version_heatmap}${core_version}${reset_text}, Web ${web_version_heatmap}${web_version}${reset_text}, FTL ${ftl_version_heatmap}${ftl_version}${reset_text}, PADD ${padd_version_heatmap}${padd_version}${reset_text}, Unbound ${green_text}v${unbound}${reset_text}"
+        printf "%s${clear_line}\n" "${padd_logo_retro_3}   ${pihole_check_box} Core  ${ftl_check_box} FTL   ${mega_status} ${check_box_info} "$(date +%d/%m/%y)", "$(date +%R)" ${reset_text}"
+        printf "%s${clear_line}\n" ""
+        printf "%s${clear_line}\n" "${bold_text}STATS ==============================================================================================${reset_text}"
+        printf " %-10s%-38s %-10s[%-40s] %-5s${clear_line}\n" "Blocking:" "${domains_being_blocked} domains" "Piholed:" "${ads_blocked_bar}" "${ads_percentage_today}%"
+        printf " %-10s%-49s%-29s${clear_line}\n" "Clients:" "${clients}" " ${ads_blocked_today} out of ${dns_queries_today} queries"
+        printf " %-10s%-39s${clear_line}\n" "Latest:" "${latest_blocked}"
+        printf " %-10s%-39s${clear_line}\n" "Top Ad:" "${top_blocked}"
+        printf " %-10s%-39s${clear_line}\n" "Top Dmn:" "${top_domain}"
+        printf " %-10s%-39s${clear_line}\n" "Top Clnt:" "${top_client}"
+        printf "%s${clear_line}\n" "${bold_text}FTL ================================================================================================${reset_text}"
+        printf " %-10s%-19s %-10s%-9s %-10s%-9s %-10s%-9s${clear_line}\n" "PID:" "${ftlPID}" "CPU Use:" "${ftl_cpu}%" "Mem. Use:" "${ftl_mem_percentage}%" "DB Size:" "$(du -h /etc/pihole/pihole-FTL.db | awk '{ print $1}')"
+        printf " %-10s%-69s${clear_line}\n" "DNSCache:" "${cache_inserts} insertions, ${cache_deletes} deletions, ${cache_size} total entries"    
+        printf "%s${clear_line}\n" "${bold_text}NETWORK ============================================================================================${reset_text}"
+        printf " %-10s%-19s %-10s%-14s %-4s%-9s %-4s%-9s${clear_line}\n" "Hostname:" "${full_hostname}" "I/face:" "${iface_name}" "TX:" "${tx_bytes}" "RX:" "${rx_bytes}"
+        printf " %-10s%-19s %-10s%-29s${clear_line}\n" "IPv4:" "${pi_ip4_addr}" "IPv6:" "${pi_ip6_addr}"
+        printf "%s${clear_line}\n" "${bold_text}UNBOUND ============================================================================================${reset_text}"
+        printf " %-10s%-19s %-10s%-14s %-10s%-19s${clear_line}\n" "Total: " "$(sudo unbound-control stats_noreset | awk -F '=' '/total.num.queries=/ {printf $NF}') queries" "Reply:" "$(sudo unbound-control stats_noreset | awk -F '=' '/total.recursion.time.avg/ {printf "%.3f\n", $NF}')s" "Cached:" "$(sudo unbound-control stats_noreset | awk -F '=' '$1 == "total.num.queries" {queries=$NF} $1 == "total.num.cachehits" {hits=$NF}END{printf "%d, %.2f\n", hits, hits/queries*100"%"}')% "
+        printf "%s${clear_line}\n" "${bold_text}DHCP ===============================================================================================${reset_text}"
+        printf " %-10s${dhcp_heatmap}%-19s${reset_text} %-10s${dhcp_ipv6_heatmap}%-9s${reset_text}${clear_line}\n" "DHCP:" "${dhcp_status}" "IPv6 Spt:" "${dhcp_ipv6_status}"
+        printf "%s${clear_line}\n" "${dhcp_info}"
+        
+        printf "%s${clear_line}\n" "${bold_text}SYSTEM =============================================================================================${reset_text}"
+        # Device
+        printf " %-10s%-39s${clear_line}\n" "Device:" "${sys_model}"
+
+        # Uptime and memory
+        printf " %-10s%-39s %-10s[${memory_heatmap}%-10s${reset_text}] %-6s${clear_line}\n" "Uptime:" "${system_uptime}" "RAM use $(free -m | awk 'NR==2{printf "%s", $3 }') MB of ${ram_total} GB:   " "${memory_bar}" "${memory_percent}%  "${reset_text}  
+
+        # CPU temp, load, percentage
+        printf " %-10s${temp_heatmap}%-10s${reset_text} %-10s${cpu_load_1_heatmap}%-4s${reset_text}, ${cpu_load_5_heatmap}%-4s${reset_text}, ${cpu_load_15_heatmap}%-7s${reset_text} %-10s[${memory_heatmap}%-10s${reset_text}] %-6s${clear_line}" "CPU Temp:" "${temperature}" "CPU Load:" "${cpu_load_1}" "${cpu_load_5}" "${cpu_load_15}" "CPU $(awk 'length==6{printf("%.0f MHz\n", $0/10^3); next} length==7{printf("%.1f GHz\n", $0/10^6)}' /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq) / ${cpu_freq}:  "$(printf '%s')" " "${cpu_bar}" "${cpu_percent}%"
+
     fi
 }
 
@@ -860,7 +905,7 @@ SizeChecker(){
   if [ "$console_width" -lt "20" ] || [ "$console_height" -lt "10" ]; then
     # Nothing is this small, sorry
     clear
-    printf "%b" "${check_box_bad} Error!\n    PADD isn't\n    for ants!\n"
+    printf "%b" "${check_box_bad} Error!\\n    PADD isn't\\n    for ants!\n"
     exit 1
   # Below Nano. Gives you Pico.
   elif [ "$console_width" -lt "24" ] || [ "$console_height" -lt "12" ]; then
@@ -882,11 +927,15 @@ SizeChecker(){
     if [ "$console_height" -lt "22" ]; then
       padd_size="slim"
     else
+      # Regular
       padd_size="regular"
     fi
   # Mega
-  else
+  elif [ "$console_width" -lt "100" ]; then
     padd_size="mega"
+  # Hyper (100 x 26) with 8x18 font
+  else
+    padd_size="hyper"
   fi
 }
 
